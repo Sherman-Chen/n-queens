@@ -16,7 +16,22 @@
 
 
 window.findNRooksSolution = function(n) {
-  var solution = undefined; //fixme
+  var solution = undefined;
+  var board = new Board({n: n});
+  var x = 0;
+  var y = 0;
+  board.togglePiece(x, y);
+  // if (window.hasAnyRowConflicts() || window.columnsConflict) {
+  //   stop, remove the piece down
+  // } else {
+  //   safe to place piece in current postion x, y
+  //   recursive function(new board)
+  // }
+
+  //generate all possibilites of boards for n
+    //run row and col conflict checks on every single board
+      //increase some solution counter for passing solutions, O(n^2) solution
+
 
   console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
   return solution;
@@ -45,3 +60,10 @@ window.countNQueensSolutions = function(n) {
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   return solutionCount;
 };
+
+
+// if (rounds = 0) {
+//   return 0
+// } else {
+//   function(rounds-1)
+// }
