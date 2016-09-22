@@ -55,14 +55,14 @@ var createColumnAtIndex = function(multiDimArray, columnIndex) {
   return column;
 };
 
-var toggleMultidimensionalArray = function (togglesArray, multiDimArray) {
-  for (var i = 0; i < togglesArray.length; i++) {
-    var coordinates = togglesArray[i];
-    var row = coordinates[0];
-    var column = coordinates[1];
-    console.log('inner coordinates:', coordinates, 'inner row:', row, 'inner column:', column);
-    multiDimArray[row][column] = 1;
-  }
+var toggleMultidimensionalArray = function (coordinates, multiDimArray) {
+  // for (var i = 0; i < togglesArray.length; i++) {
+  // var coordinates = togglesArray[i];
+  var row = coordinates[0];
+  var column = coordinates[1];
+  console.log('inner coordinates:', coordinates, 'inner row:', row, 'inner column:', column);
+  multiDimArray[row][column] = 1;
+  // }
   
   return multiDimArray;
 };
@@ -87,7 +87,7 @@ window.findNRooksSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  var solutionCount = undefined; //fixme
+  var solutionCount = 0; //fixme
   var invalids = [];
   var rooksPlaced = 0;
   var emptyMatrix = createMultidimensionalArray(n);
@@ -100,33 +100,42 @@ window.countNRooksSolutions = function(n) {
 
   // function(x,y, invalids array (init: empty), and multiDboard (init: empty))
   var recursiveHelper = function(x, y, invalidsArray, matrix) {
+    //FIRST: check if y is out of bounds, if so, call with next row and reset y
+    if (y >= matrix[0].length) {
+      recursiveHelper(x + 1, 0, invalidsArray, matrix);
+      // return;
+    // check if x & y are at maximum, if so, return out of recursive loop
+    } else if (y >= matrix[0].length && x >= matrix[0].length) {
+      return;
+    } 
+
+    // create new local scope array of invalid coordinates
     var invalidsArray = invalidsArray;
     // create new Board object to toggle/edit, passing in multidimensional matrix as grid
     var board = new Board(matrix);
-    // begin with x,y, invalids, and multi-D board
+
+
+
+
+
+
     // confirm coordinate not previously used (i.e. not in invalids array); if so, re-call with new coordinates
-
-
-
-
-
-
     if (invalidsArray.includes([x, y])) {
       // check if y is at maximum, if so, reset y and move down 1 row
 
                                                         // RECURSIVE FUNCTION CALL WITH NEXT AVAILABLE ELEMENT ///
-
-                                                        if (y >= matrix[0].length) {
-                                                          recursiveHelper(x + 1, 0, invalidsArray, matrix);
-                                                          return;
-                                                        // check if x & y are at maximum, if so, return out of recursive loop
-                                                        } else if (y >= matrix[0].length && x >= matrix[0].length) {
-                                                          return;
-                                                        // if neither is the case, call function with next element in current row
-                                                        } else {
-                                                          recursiveHelper(x, y + 1, invalidsArray, matrix);
-                                                          return;
-                                                        }
+                                                        recursiveHelper(x, y + 1, invalidsArray, matrix);
+                                                        // if (y >= matrix[0].length) {
+                                                        //   recursiveHelper(x + 1, 0, invalidsArray, matrix);
+                                                        //   return;
+                                                        // // check if x & y are at maximum, if so, return out of recursive loop
+                                                        // } else if (y >= matrix[0].length && x >= matrix[0].length) {
+                                                        //   return;
+                                                        // // if neither is the case, call function with next element in current row
+                                                        // } else {
+                                                        //   recursiveHelper(x, y + 1, invalidsArray, matrix);
+                                                        //   return;
+                                                        // }
     }
 
 
@@ -139,27 +148,53 @@ window.countNRooksSolutions = function(n) {
     // if not invalid but has conflicts
     // board.toggle(x,y)
     board.togglePiece(x, y);
-    // if hasconflictsrow || hasconflictscol
+    // if has row conflicts OR has column conflicts
     if (board.hasAnyRowConflicts() || board.hasAnyColConflicts()) {
+      // if any row conflicts, invalidate all coordinates in row
+      if (board.hasAnyRowConflicts()) {
+        // add all row coordinates to invalids array
+        var conflictingRow = matrix[x];
+        for (var i = 0; i < conflictingRow.length; i++) {
+          if (invalidsArray.includes([x, i]) === false) {
+            invalidsArray.push([x, i]);
+          }
+        }
+      }
+      // if any column conflicts, invalidate all coordinates in column
+      if (board.hasAnyColConflicts()) {
+        // create column
+        var column = createColumnAtIndex(matrix, y);
+        // add all col coordinates to invalids
+        for (var j = 0; j < column.length; j++) {
+          if (invalidsArray.includes([j, y]) === false) {
+            invalidsArray.push([j, y]);
+            console.log('Invalids Array:', invalidsArray);
+          }
+        }
+      }
+
       // untoggle x,y
       board.togglePiece(x, y);
       // add [x,y] to invalids
       invalidsArray.push([x, y]);
       // if invalidsarray.length === n*2
+
+
+
       if (invalidsArray.length === Math.pow(n, 2)) {
         // return
         return;
       // else
       } else {
                                                         // RECURSIVE FUNCTION CALL WITH NEXT AVAILABLE ELEMENT ///
-
-                                                        if (y >= matrix[0].length) {
-                                                          recursiveHelper(x + 1, 0, invalidsArray, matrix);
-                                                        } else if (y >= matrix[0].length && x >= matrix[0].length) {
-                                                          return;
-                                                        } else {
-                                                          recursiveHelper(x, y + 1, invalidsArray, matrix);
-                                                        }
+                                                        recursiveHelper(x, y + 1, invalidsArray, matrix);
+                                                        // if (y >= matrix[0].length) {
+                                                        //   recursiveHelper(x + 1, 0, invalidsArray, matrix);
+                                                        // } else if (y >= matrix[0].length && x >= matrix[0].length) {
+                                                        //   return;
+                                                        // } else {
+                                                        //   recursiveHelper(x, y + 1, invalidsArray, matrix);
+                                                        // }
       }
 
 
@@ -168,8 +203,9 @@ window.countNRooksSolutions = function(n) {
     } else {
       // rooksplaced++
       rooksPlaced++;
+      console.log('Rook placed! Total rooks:', rooksPlaced);
       // matrix toggle to match board
-      var coordinates = [[x, y]];
+      var coordinates = [x, y];
       console.log('coordinates:', coordinates, 'matrix:', matrix);
       matrix = toggleMultidimensionalArray(coordinates, matrix);
       // add [x,y] to invalids
@@ -192,6 +228,7 @@ window.countNRooksSolutions = function(n) {
         for (var j = 0; j < column.length; j++) {
           if (invalidsArray.includes([j, y]) === false) {
             invalidsArray.push([j, y]);
+            console.log('Invalids Array:', invalidsArray);
           }
         }
       }
@@ -202,7 +239,7 @@ window.countNRooksSolutions = function(n) {
         // return
         return;
       // else if invalidsarray.length === n*2
-      } else if (invalidsArray.length === n * 2) {
+      } else if (invalidsArray.length === Math.pow(n, 2)) {
         // return
         return;
       // else 
@@ -210,14 +247,14 @@ window.countNRooksSolutions = function(n) {
         //call function with (x, y+1, invalids, multiDboard)
 
                                                         // RECURSIVE FUNCTION CALL WITH NEXT AVAILABLE ELEMENT ///
-
-                                                        if (y >= matrix[0].length) {
-                                                          recursiveHelper(x + 1, 0, invalidsArray, matrix);
-                                                        } else if (y >= matrix[0].length && x >= matrix[0].length) {
-                                                          return;
-                                                        } else {
-                                                          recursiveHelper(x, y + 1, invalidsArray, matrix);
-                                                        }
+                                                        recursiveHelper(x, y + 1, invalidsArray, matrix);
+                                                        // if (y >= matrix[0].length) {
+                                                        //   recursiveHelper(x + 1, 0, invalidsArray, matrix);
+                                                        // } else if (y >= matrix[0].length && x >= matrix[0].length) {
+                                                        //   return;
+                                                        // } else {
+                                                        //   recursiveHelper(x, y + 1, invalidsArray, matrix);
+                                                        // }
       }
       
       
@@ -233,6 +270,14 @@ window.countNRooksSolutions = function(n) {
   console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
   return solutionCount;
 };
+
+
+
+
+
+
+
+
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
