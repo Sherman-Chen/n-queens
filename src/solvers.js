@@ -20,13 +20,10 @@ window.findNRooksSolution = function(n) {
   var board = new Board({n: n});
   var x = 0;
   var y = 0;
-  board.togglePiece(x, y);
-  // if (window.hasAnyRowConflicts() || window.columnsConflict) {
-  //   stop, remove the piece down
-  // } else {
-  //   safe to place piece in current postion x, y
-  //   recursive function(new board)
-  // }
+
+  var helper = function(matrix) {
+
+  };
 
   //generate all possibilites of boards for n
     //run row and col conflict checks on every single board
